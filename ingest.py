@@ -17,42 +17,35 @@ def normalize_speaker(speaker: Any) -> str:
 
 
 def normalize_rag_record(record: Dict[str, Any], idx: int) -> Dict[str, Any]:
-    """
-    Normalize a dean_rag_chunks.json-style record into a standard unit.
-    """
-    context = clean_text(record.get("context", ""))
-    content = clean_text(record.get("content", ""))
-
-    combined_text = content
-    if context:
-        combined_text = f"Context: {context}\n\nResponse: {content}"
-
     return {
         "unit_id": idx,
         "source": clean_text(record.get("source", "")),
         "speaker": normalize_speaker(record.get("speaker")),
         "role": clean_text(record.get("role", "")),
         "timestamp_ms": record.get("timestamp_ms"),
-        "text": combined_text,
+        "context": clean_text(record.get("context", "")),
+        "content": clean_text(record.get("content", "")),
+        "text": clean_text(record.get("content", "")),  # main retrieval text
     }
 
 
 def normalize_text_only_record(record: Dict[str, Any], idx: int) -> Dict[str, Any]:
-    """
-    Normalize simple json/jsonl records like {"text": "..."}.
-    """
+    text = clean_text(
+        record.get("text")
+        or record.get("content")
+        or record.get("output")
+        or ""
+    )
+
     return {
         "unit_id": idx,
         "source": clean_text(record.get("source", "")),
         "speaker": normalize_speaker(record.get("speaker")),
         "role": clean_text(record.get("role", "")),
         "timestamp_ms": record.get("timestamp_ms"),
-        "text": clean_text(
-            record.get("text")
-            or record.get("content")
-            or record.get("output")
-            or ""
-        ),
+        "context": "",
+        "content": text,
+        "text": text,
     }
 
 
