@@ -108,6 +108,11 @@ def should_split(current_units: List[Dict], current_words: int, next_unit: Dict)
     if gap is not None and gap > TIMESTAMP_GAP_THRESHOLD_MS and current_words >= MIN_WORDS:
         return True
 
+    # Source change split
+    source_changed = next_unit.get("source", "") != prev_unit.get("source", "")
+    if source_changed and current_words >= MIN_WORDS:
+        return True
+
     # Speaker change split
     speaker_changed = next_unit["speaker"] != prev_unit["speaker"]
     if SPLIT_ON_SPEAKER_CHANGE and speaker_changed and current_words >= TARGET_WORDS:
